@@ -1,16 +1,33 @@
-# This is a sample Python script.
+from typing import Annotated
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from fastapi import FastAPI
+from pydantic import BaseModel, Field
 
+app = FastAPI()
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+Title = Annotated[str, Field(min_length=1, max_length=100)]
+Author = Annotated[str, Field(min_length=1, max_length=50)]
+Year = Annotated[int, Field(ge=1000, le=2026)]
+Isbn = Annotated[str, Field(pattern=r"^(?:\d{10}|\d{13})$")]
+Tag = Annotated[str, Field(min_length=1, max_length=20)]
+Tags = list[Tag]
+#pattern=r"^(?:[1-9]|1[0-9]|20)$"
 
+class BookBase(BaseModel):
+    title: Title
+    author: Author
+    year: Year
+    isbn: Isbn
+    tags: Tags = []
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+class Book(BookBase):
+    id: int
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+class BookCreate(BookBase):
+    pass
+class BookUpdate(BaseModel):
+    title: Title | None = None
+    author: Author | None = None
+    year: Year | None = None
+    isbn: Isbn | None = None
+    tags: Tags | None = None
