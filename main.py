@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from pydantic import BaseModel, Field
 
 app = FastAPI()
@@ -31,3 +31,14 @@ class BookUpdate(BaseModel):
     year: Year | None = None
     isbn: Isbn | None = None
     tags: Tags | None = None
+
+book_db: dict[int, Book] = {}
+next_id: int = 1
+
+@app.post("/books", response_model=Book, status_code=status.HTTP_201_CREATED)
+def create_book(book: BookCreate) -> Book:
+    global next_id
+    new_book = Book(id=next_id, **book.model_dump())
+    book_db[new_book.id] = new_book
+    next_id+=1
+    return new_book
