@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, HTTPException
 from pydantic import BaseModel, Field
 
 app = FastAPI()
@@ -42,3 +42,9 @@ def create_book(book: BookCreate) -> Book:
     book_db[new_book.id] = new_book
     next_id+=1
     return new_book
+
+@app.get("/books/{book_id}", response_model=Book)
+def read_book(book_id: int) -> Book:
+    if book_id <= 0:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT)
+    return book_db[book_id]
