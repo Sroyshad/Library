@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import FastAPI, status, HTTPException, Path
+from fastapi import FastAPI, status, HTTPException, Path, Query
 from pydantic import BaseModel, Field
 
 app = FastAPI()
@@ -50,5 +50,6 @@ def read_book(book_id: Annotated[int, Path(gt=0)]) -> Book:
     return book_db[book_id]
 
 @app.get("/books", response_model=list[Book], summary="Return all books/Вернуть все книги")
-def list_books() -> list[Book]:
-    return list(book_db.values())
+def list_books(skip: Annotated[int, Query(ge=0)] = 0, limit: Annotated[int, Query(ge=1,le=100)] = 10) -> list[Book]:
+    lst = list(book_db.values())
+    return lst[skip: skip+limit]
